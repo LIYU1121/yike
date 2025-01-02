@@ -2,8 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import time
-import smtplib
-import os
 
 def check_content_existence(url, title_pattern, match_type='partial'):
     """
@@ -30,13 +28,20 @@ def check_content_existence(url, title_pattern, match_type='partial'):
         # 解析 HTML 内容
         soup = BeautifulSoup(response.text, 'html.parser')
 
+        # # 打印页面标题
+        # print(f"\n页面标题: {soup.title.string if soup.title else 'No title'}\n")
+
         # 查找所有可能的标题元素
         potential_titles = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'div'])
+
+        # print("页面内容:")
+        # print("-" * 50)
 
         # 检查每个潜在的标题是否匹配
         for element in potential_titles:
             text = element.get_text().strip()
-            if text:  # 只检查非空文本
+            if text:  # 只打印非空文本
+                # print(text)
                 if match_type == 'full':
                     if re.fullmatch(title_pattern, text, re.IGNORECASE):
                         print(f"\n找到匹配! 匹配文本: {text}")
@@ -50,6 +55,7 @@ def check_content_existence(url, title_pattern, match_type='partial'):
                         print(f"\n找到匹配! 匹配文本: {text}")
                         return True
 
+        print("-" * 50)
         print("\n未找到匹配内容。")
         return False
 
@@ -57,22 +63,22 @@ def check_content_existence(url, title_pattern, match_type='partial'):
         print(f"访问网站时出错: {e}")
         return False
 
-# 主程序
+# 示例用法
 if __name__ == "__main__":
     url = "https://ins.seu.edu.cn/26759/list1.htm"
     title_pattern = r"博士"
-    match_type = 'partial'
+    match_type = 'partial'  # 可以改为 'full' 或 'start'
 
     print(f"正在检查网址: {url}")
     print(f"查找模式: '{title_pattern}'")
     print(f"匹配类型: {match_type}")
 
+    # 添加延迟
     time.sleep(2)
 
     content_exists = check_content_existence(url, title_pattern, match_type)
 
     if content_exists:
-        message = f"在网页 {url} 中找到了匹配 '{title_pattern}' 的内容（{match_type}匹配）。"
-        print(message)
+        print(f"\n结果: 在网页中找到了匹配 '{title_pattern}' 的内容（{match_type}匹配）。")
     else:
         print(f"\n结果: 在网页中未找到匹配 '{title_pattern}' 的内容（{match_type}匹配）。")
